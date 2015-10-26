@@ -3,15 +3,13 @@ package padding
 import (
 	"bytes"
 	"encoding/binary"
-	"fmt"
 	"math"
-	"strconv"
 )
 
 //overhead to encode the amount of padding, could be reduced through a more complex way.
 const PADLEN = 8
 
-//Returns the number of bits required to represent len(msg)
+//Returns the number of bits required to represent the length of the message and the overhead.
 func GetMsgBits(msg []byte, overhead int) uint64 {
 	//Plus one because if the message is a power of 2 it would give a length of 1 less then is needed to store it. A message of 8 bytes, needs 4 bits. But log_2(8)=3
 	return uint64(math.Ceil(math.Log2(float64(len(msg)+overhead) + 1)))
@@ -43,15 +41,11 @@ func GetPaddingLen(msg []byte, overhead int) uint64 {
 		mask |= (1 << i)
 	}
 
-	//fmt.Println(strconv.FormatUint((mask), 2))
 	//inver the mask
 	mask = ^mask
-	//fmt.Println(strconv.FormatUint((mask), 2))
 
-	//fmt.Println(strconv.FormatUint((l), 2))
 	//Or the mask with our length. Now all non zero bits are 1
 	l |= mask
-	//fmt.Println(strconv.FormatUint((l), 2))
 	//invert l, now we have the ^l, ^l + l will give us only 1s So if we add 1 to that we get 0 in all of the zero bits, and the next largest bit will be a 1.
 	l = ^l
 	l = l + 1
@@ -71,19 +65,11 @@ func CheckZeroBits(msg []byte) bool {
 	for i = 0; i < zb; i++ {
 		mask |= (1 << i)
 	}
-	fmt.Println(l)
-	fmt.Println(strconv.FormatUint((mask), 2))
 	mask = ^mask
-	fmt.Println(strconv.FormatUint((mask), 2))
 
-	fmt.Println(strconv.FormatUint((l), 2))
 	l |= mask
-	fmt.Println(strconv.FormatUint((l), 2))
 	l = ^l
-	fmt.Println(strconv.FormatUint((l), 2))
 	l = l + 1
-	fmt.Println("Zero bits: ", zb)
-	fmt.Println(strconv.FormatUint((l), 2))
 	//case were the message is padded correctly( all bits are 0 -> all are 1 -> +1 = zb^2
 	if float64(l) == math.Pow(2, float64(zb)) {
 		l = 0
