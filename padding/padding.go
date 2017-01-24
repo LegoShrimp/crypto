@@ -64,7 +64,7 @@ func zeroBits(length, overhead uint64) uint64 {
 //For zeroBits
 // sum+= l & (1<<i)
 //Code so that if l&(1<<i) is 0 it adds 2^i, otherwise nothing
-func paddingLength(msgLen, overhead uint64) uint64 {
+func PaddingLength(msgLen, overhead uint64) uint64 {
 	paddingNeeded := uint64(msgLen + overhead)
 	zeroBits := zeroBits(msgLen, overhead)
 
@@ -118,11 +118,9 @@ func CheckPadding(msgLen uint64) bool {
 
 //generates padding, can be later modified if something else is better.
 //There is also probably a more efficient way to generate it.
-
 //Inputs:
 //paddingAmount uint64 --this is the number of bytes of padding to generate.
-
-func generatePadding(paddingAmount uint64) []byte {
+func GeneratePadding(paddingAmount uint64) []byte {
 	padding := make([]byte, paddingAmount)
 	var i uint64
 	for i = 0; i < paddingAmount; i++ {
@@ -138,8 +136,8 @@ func generatePadding(paddingAmount uint64) []byte {
 //msg []byte, is the plaintext message that needs to be padded.
 //Returns a properly padded message.
 func Pad(msg []byte, overhead uint64) []byte {
-	padAmount := paddingLength(uint64(len(msg)), overhead+PADLEN)
-	padding := generatePadding(padAmount)
+	padAmount := PaddingLength(uint64(len(msg)), overhead+PADLEN)
+	padding := GeneratePadding(padAmount)
 	buf := new(bytes.Buffer)
 	binary.Write(buf, binary.BigEndian, int64(padAmount))
 	paddedMsg := buf.Bytes()
